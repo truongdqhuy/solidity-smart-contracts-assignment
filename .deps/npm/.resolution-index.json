@@ -1,0 +1,37 @@
+{
+  "contracts/02_Greeting.sol": {
+    "__sources__": {
+      "contracts/02_Greeting.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.34;\n\ncontract Greeting {\n    string private greeting;\n    address public owner;\n\n    string private constant DEFAULT_GREETING = \"Hello, World!\";\n\n    event GreetingChanged(address changer, string newGreeting);\n\n    constructor(string memory _g) {\n        owner = msg.sender;\n        greeting = _g;\n        emit GreetingChanged(msg.sender, _g);\n    }\n\n    function setGreeting(string memory _g) public {\n        require(msg.sender == owner, \"Greeting: caller is not the owner\");\n        greeting = _g;\n        emit GreetingChanged(msg.sender, _g);\n    }\n\n    function greet() public view returns (string memory) {\n        return greeting;\n    }\n\n    function resetGreeting() public {\n        require(msg.sender == owner, \"Greeting: caller is not the owner\");\n        greeting = DEFAULT_GREETING;\n        emit GreetingChanged(msg.sender, DEFAULT_GREETING);\n    }\n}\n",
+        "file": "contracts/02_Greeting.sol"
+      }
+    }
+  },
+  "contracts/04_Bank.sol": {
+    "__sources__": {}
+  },
+  "contracts/01_Storage.sol": {
+    "__sources__": {
+      "contracts/01_Storage.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.34;\n\ncontract Storage {\n    uint256 private storedData;\n\n    event ValueSet(address indexed who, uint256 newValue);\n\n    constructor(uint256 _init) {\n        storedData = _init;\n        emit ValueSet(msg.sender, _init);\n    }\n\n    function set(uint256 _value) public {\n        storedData = _value;\n        emit ValueSet(msg.sender, _value);\n    }\n\n    function get() public view returns (uint256) {\n        return storedData;\n    }\n}\n",
+        "file": "contracts/01_Storage.sol"
+      }
+    }
+  },
+  "contracts/03_Counter.sol": {
+    "__sources__": {
+      "contracts/03_Counter.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.34;\n\ncontract Counter {\n    uint256 public count;\n    uint256 public constant MAX = 100;\n\n    event Incremented(address indexed who, uint256 newCount);\n    event Decremented(address indexed who, uint256 newCount);\n    event Reset(address indexed who);\n\n    function increment() public {\n        require(count < MAX, \"Max limit reached\");\n        count += 1;\n        emit Incremented(msg.sender, count);\n    }\n\n    function decrement() public {\n        require(count > 0, \"Count is zero\");\n        count -= 1;\n        emit Decremented(msg.sender, count);\n    }\n\n    function reset() public {\n        count = 0;\n        emit Reset(msg.sender);\n    }\n}\n",
+        "file": "contracts/03_Counter.sol"
+      }
+    }
+  },
+  "contracts/04_Ownable.sol": {
+    "__sources__": {
+      "contracts/04_Ownable.sol": {
+        "content": "\n // SPDX-License-Identifier: MIT\npragma solidity ^0.8.34;\n\n// Parent Contract\ncontract Ownable {\n    address public owner;\n\n    event OwnershipTransferred(\n        address indexed previousOwner,\n        address indexed newOwner\n    );\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Not the owner\");\n        _;\n    }\n\n    function transferOwnership(address newOwner) public onlyOwner {\n        require(newOwner != address(0), \"Invalid owner address\");\n\n        address previousOwner = owner;\n        owner = newOwner;\n\n        emit OwnershipTransferred(previousOwner, newOwner);\n    }\n}\n\n// Child Contract\ncontract ProtectedVault is Ownable {\n    uint256 private treasure;\n\n    event Deposited(address indexed sender, uint256 amount);\n    event Withdrawn(address indexed to, uint256 amount);\n\n    // Anyone can deposit ETH\n    function deposit() public payable {\n        treasure += msg.value;\n        emit Deposited(msg.sender, msg.value);\n    }\n\n    // Only owner can withdraw ETH\n    function withdraw(address to, uint256 amt) public onlyOwner {\n        require(to != address(0), \"Invalid recipient\");\n        require(amt <= address(this).balance, \"Insufficient balance\");\n\n        require(amt <= treasure, \"Insufficient treasure\");\n\n        treasure -= amt;\n\n        (bool success, ) = payable(to).call{value: amt}(\"\");\n        require(success, \"ETH transfer failed\");\n\n        emit Withdrawn(to, amt);\n    }\n\n    // Return the actual ETH balance of the contract\n    function contractBalance() public view returns (uint256) {\n        return address(this).balance;\n    }\n}\n",
+        "file": "contracts/04_Ownable.sol"
+      }
+    }
+  }
+}
